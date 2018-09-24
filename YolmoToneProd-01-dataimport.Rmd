@@ -1,0 +1,176 @@
+---
+title: "Yolmo tone production data import"
+output: html_document
+---
+
+## 1. Load Data
+```{r}
+rm(list=ls())
+#setwd("")
+# Get files in "data/" sub-directory
+filenames <- list.files(path = "data/", pattern = "*.txt")
+filenames <- paste0("data/", filenames)
+filenames <- as.list(filenames)
+
+#Get list of data frames
+YolTone.list <- lapply(filenames, read.table, header = TRUE)
+#filenames <- lapply(1:4, function(i){paste0("data/Syuba-female01-T", i, ".txt")})
+
+# Create column for "File"" name in data frames (needed for Speaker info)
+names(YolTone.list) <- filenames  # Name each dataframe according to filename list
+for(i in filenames){
+  YolTone.list[[i]]$File = i
+  }
+
+# Combine list of data frames
+YolTone.df <- do.call(rbind, YolTone.list)
+rownames(YolTone.df) <- NULL  # Remove row names
+
+#View(YolTone.df)
+```
+
+## 2. Clean up data
+```{r}
+# Need columns for: (1) F0 (DV); (2) Time point; (3) Tone Category (four); (4) Tone category (two); (5) Position in Word; (6) Syllable Type; (7) Vowel; (8) Frame/context; (9) Repetition number; (10) Speaker (random); (11) Gloss (random); ?(12) Normalized F0 by Gender as a z-score 
+
+# 1. Clean up F0 column labels
+YolTone.df$F0 <- gsub("999", "", YolTone.df$F0)
+YolTone.df$F0 <- as.integer(YolTone.df$F0)
+
+# 2. Delete Time column, Rename Percent column as "Time" column
+YolTone.df$Time <- NULL
+colnames(YolTone.df)[colnames(YolTone.df) == "Percent"] <- "Time"
+YolTone.df$Time <- as.integer(YolTone.df$Time)
+
+# 3. Create a Tone4 column from Tone column that collapses across 4 tone categories
+YolTone.df$Tone4 <- YolTone.df$Tone
+YolTone.df$Tone4 <- gsub("%", "", YolTone.df$Tone4)  # Remove all '%' in tone labels
+YolTone.df$Tone4 <- gsub("\\_(.*?+)$", "", YolTone.df$Tone4)  # Remove all text including and after the first '_' in tone labels
+YolTone.df$Tone4 <- as.factor(YolTone.df$Tone4)
+
+# 4. Create a Tone2 column from Tone4 column that collapses across 2 tone categories
+YolTone.df$Tone2 <- YolTone.df$Tone4
+YolTone.df$Tone2 <- gsub("T1|T2", "Low", YolTone.df$Tone2)  # Replace all 'T1' and 'T2' with 'Low'
+YolTone.df$Tone2 <- gsub("T3|T4", "High", YolTone.df$Tone2)  # Replace all 'T3' and 'T4' with 'High'
+YolTone.df$Tone2 <- as.factor(YolTone.df$Tone2)
+
+
+# 5. Create a Position (in word) column from Tone column (0 = Monosyllabic, 1 = 1st syllable, 2 = 2nd syllable)
+YolTone.df$Position <- YolTone.df$Tone
+YolTone.df$Position <- gsub("%", "", YolTone.df$Position)  # Remove all '%' in tone labels
+YolTone.df$Position <- gsub("^(.*?+)\\_", "", YolTone.df$Position)  # Remove all text up to and including  the last underscore (Use greedy operator '+') 
+YolTone.df$Position[!YolTone.df$Position %in% c("1st", "2nd")] <- "0"  # Replace all non-"1st" and "2nd" values with "0" for monosyllabic words
+YolTone.df$Position <- gsub("1st", "1", YolTone.df$Position)  # Replace "1st" with 1
+YolTone.df$Position <- gsub("2nd", "2", YolTone.df$Position)  # Replace "2nd" with 2
+YolTone.df$Position <- as.factor(YolTone.df$Position)
+
+
+# 6. Create a Syllable type column from Tone column (O, N, R and S)
+YolTone.df$SyllType <- YolTone.df$Tone
+YolTone.df$SyllType <- gsub("%", "", YolTone.df$SyllType)  # Remove all '%' in tone labels
+YolTone.df$SyllType <- gsub("^(.*?)\\_", "", YolTone.df$SyllType)  # Remove all text up to and including the first underscore (Don't use greedy operator '+') 
+YolTone.df$SyllType <- gsub("\\_(.*?)$", "", YolTone.df$SyllType)  # Remove all text after and including the last underscore (Don't use greedy operator '+') 
+YolTone.df$SyllType <- gsub("\\*", "", YolTone.df$SyllType)  # Remove '*' 
+YolTone.df$SyllType <- gsub("1st|2nd|T1|T2|T3|T4", "O", YolTone.df$SyllType)  # Replace non-R,S and N labels with 'O' 
+YolTone.df$SyllType <- factor(YolTone.df$SyllType, levels = c("O", "N", "R", "S")) # Set order of levels: Open (O); Nasal (N), Rhotic (R) ans Stop (S) final syllable
+
+
+# 7. Change a Vowel column from Segment column (collapse vowel length)
+YolTone.df$Segment <- as.factor(YolTone.df$Segment)
+YolTone.df$Vowel <- YolTone.df$Segment
+YolTone.df$Vowel <- gsub("([aeiou])[aeiou]$", "\\1", YolTone.df$Vowel)  # Delete last vowel
+YolTone.df$Vowel <- gsub("m|n|ng|r", "", YolTone.df$Vowel)  # Delete all nasals and rhotics 
+is.na(YolTone.df$Vowel) <- YolTone.df$Vowel == "" # Make missing vowels "NA"
+YolTone.df$Vowel <- as.factor(YolTone.df$Vowel)
+
+
+# 8. Create a context Frame column based on the Label column
+YolTone.df$Frame <- YolTone.df$Label
+YolTone.df$Frame <- gsub("^(.*?+)\\_", "", YolTone.df$Frame)  # Remove all text up to and including the last underscore (Use greedy operator '+') 
+YolTone.df$Frame[!YolTone.df$Frame %in% c("IS")] <- "Carrier"  # Replace all non-"IS" values with "Carrier"
+YolTone.df$Frame <- gsub("IS", "Isolation", YolTone.df$Frame)  # Replace all "IS" with "Isolation"
+YolTone.df$Frame <- as.factor(YolTone.df$Frame)
+
+# 9. Convert Rep column to a factor
+YolTone.df$Rep <- as.factor(YolTone.df$Rep)
+
+
+# 10. Create a Speaker column based on the File column
+YolTone.df$Speaker <- YolTone.df$File
+YolTone.df$Speaker <- gsub("data/", "", YolTone.df$Speaker)
+YolTone.df$Speaker <- gsub("\\-T[1-4]\\.txt", "", YolTone.df$Speaker)
+YolTone.df$Speaker <- as.factor(YolTone.df$Speaker)
+
+# 10b. Create a Speaker Gender column based on the Speaker column
+YolTone.df$Gender <- YolTone.df$Speaker
+YolTone.df$Gender <- gsub("^(.*?+)-", "", YolTone.df$Gender)  # Remove all text up to and including the first '-' (Use greedy operator '+') 
+YolTone.df$Gender <- gsub("0[12]", "", YolTone.df$Gender)  # Remove all numbers
+YolTone.df$Gender <- as.factor(YolTone.df$Gender)
+
+
+# 11. Create a Gloss column based on the Label column
+YolTone.df$Gloss <- YolTone.df$Label
+YolTone.df$Gloss <- gsub("\\_IS", "", YolTone.df$Gloss)  # Remove all final '_IS' labels
+YolTone.df$Gloss <- gsub("\\_0[12]$", "", YolTone.df$Gloss)  # Remove all numbering "01" or "02" from label
+YolTone.df$Gloss <- gsub("^(.*?+)\\_", "", YolTone.df$Gloss)  # Remove all text up to and including before the last underscore (Use greedy operator '+') 
+
+# Merge some Gloss labels
+YolTone.df$Gloss <- gsub("IMP$", "", YolTone.df$Gloss)  # Remove "IMP" from label
+YolTone.df$Gloss <- gsub("^me$", "1sg", YolTone.df$Gloss)  # Merge "me" with "1sg"
+YolTone.df$Gloss <- gsub("^us$", "1plexcl", YolTone.df$Gloss)  # Merge "us" with "1plexcl02" label
+YolTone.df$Gloss <- gsub("^we$", "1plexcl", YolTone.df$Gloss)  # Merge "we" with "1plexcl"
+YolTone.df$Gloss <- gsub("^farm$", "field", YolTone.df$Gloss)  # Merge "farm" with "field"
+YolTone.df$Gloss <- gsub("^rob$", "steal", YolTone.df$Gloss)  # Merge "rob" with "steal"
+YolTone.df$Gloss <- gsub("^place$", "ground", YolTone.df$Gloss)  # Merge "farm" with "field"
+YolTone.df$Gloss <- gsub("^scatter$", "sowseeds", YolTone.df$Gloss)  # Merge "scatter" with "sowseeds"
+YolTone.df$Gloss <- gsub("^noise$", "voice", YolTone.df$Gloss)  # Merge "noise" with "voice"
+YolTone.df$Gloss <- gsub("^mattress$", "mat", YolTone.df$Gloss)  # Merge "mattress" with "mat"
+YolTone.df$Gloss <- gsub("^truth$", "correct", YolTone.df$Gloss)  # Merge "truth" with "correct"
+YolTone.df$Gloss <- as.factor(YolTone.df$Gloss)
+
+
+# 12. Create a Rime time column
+YolTone.df$RimeTime <- YolTone.df$Time
+YolTone.df$RimeTime <- as.numeric(YolTone.df$RimeTime)
+
+# For nasal and sonorant-final syllables, divide the Rime time by 2
+sonsyll <- c("N","R")
+YolTone.df$RimeTime[YolTone.df$SyllType %in% sonsyll] <- YolTone.df$RimeTime[YolTone.df$SyllType %in% sonsyll]/2
+
+# For nasal and sonorant-portions of syllables, add 50 to the Rime time
+sonseg <- c("m","n","ng","r")
+YolTone.df$RimeTime[YolTone.df$Segment %in% sonseg] <- YolTone.df$RimeTime[YolTone.df$Segment %in% sonseg]+50
+
+# Delete all non-integer values
+YolTone.df$RimeTime <- as.character(YolTone.df$RimeTime)
+YolTone.df$RimeTime <- gsub("^.+\\.5$", "", YolTone.df$RimeTime)  # Remove all numbers that end with .5
+YolTone.df$RimeTime <- as.integer(YolTone.df$RimeTime)
+
+
+# 12. Create a gender-normalized F0 column
+#YolTone.df.z <- by(data = YolTone.df$F0, YolTone.df$Gender, scale)
+#YolTone.df$z <- do.call(rbind, YolTone.df.z)
+
+# Select and re-order columns
+YolTone.df <- YolTone.df[c("File", "Label", "Speaker", "Gender", "Word", "Gloss", "Frame", "Rep", "Position", "SyllType", "Segment", "Vowel", "Tone", "Tone4", "Tone2", "Duration", "Time", "RimeTime", "F0")]
+
+View(YolTone.df)
+str(YolTone.df)
+
+# Convert from long to wide format
+library(tidyr)
+YolTone.df.wide <- spread(YolTone.df, Time, F0)
+
+# Look for mislabels
+#View(YolTone.df.wide)
+
+#levels(YolTone.df$Word)
+#unique(YolTone.df$File[grep("tongbo", YolTone.df$Word)])
+```
+
+
+## Save RData
+```{r}
+save.image(file = "output/YolmoTone-allspeakers.RData")
+write.csv(YolTone.df.wide, file = "output/YolmoToneProd.csv", row.names = FALSE, na = "") 
+```
