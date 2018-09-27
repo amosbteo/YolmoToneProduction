@@ -12,7 +12,7 @@ filenames <- list.files(path = "data/", pattern = "*.txt")
 filenames <- paste0("data/", filenames)
 filenames <- as.list(filenames)
 
-#Get list of data frames
+# Get list of data frames
 YolTone.list <- lapply(filenames, read.table, header = TRUE)
 #filenames <- lapply(1:4, function(i){paste0("data/Syuba-female01-T", i, ".txt")})
 
@@ -146,11 +146,6 @@ YolTone.df$RimeTime <- as.character(YolTone.df$RimeTime)
 YolTone.df$RimeTime <- gsub("^.+\\.5$", "", YolTone.df$RimeTime)  # Remove all numbers that end with .5
 YolTone.df$RimeTime <- as.integer(YolTone.df$RimeTime)
 
-
-# 12. Create a gender-normalized F0 column
-#YolTone.df.z <- by(data = YolTone.df$F0, YolTone.df$Gender, scale)
-#YolTone.df$z <- do.call(rbind, YolTone.df.z)
-
 # Select and re-order columns
 YolTone.df <- YolTone.df[c("File", "Label", "Speaker", "Gender", "Word", "Gloss", "Frame", "Rep", "Position", "SyllType", "Segment", "Vowel", "Tone", "Tone4", "Tone2", "Duration", "Time", "RimeTime", "F0")]
 
@@ -159,7 +154,9 @@ str(YolTone.df)
 
 # Convert from long to wide format
 library(tidyr)
-YolTone.df.wide <- spread(YolTone.df, Time, F0)
+YolTone.df.wide <- YolTone.df 
+YolTone.df.wide$RimeTime <- NULL
+YolTone.df.wide <- spread(YolTone.df.wide, Time, F0)
 
 # Look for mislabels
 #View(YolTone.df.wide)
