@@ -26,22 +26,22 @@ YolTone.all2 <- subset(YolTone.df, Position == 2)  # Only select 2nd syllables d
 # 2.1 Plot effects of tone category on F0 at rime midpoint
 ```{r}
 # Create summaries of mean F0 for each tone category * gender combination at rime midpoint
-summarize_f0_50(YolTone.all0)
-summarize_f0_50(YolTone.all1)
-summarize_f0_50(YolTone.all2)
+summarize_f0_50(YolTone.all0, toneanalysis = "Tone4")
+summarize_f0_50(YolTone.all1, toneanalysis = "Tone4")
+summarize_f0_50(YolTone.all2, toneanalysis = "Tone4")
 
 # Plot differences in F0 across tone categories conditions
-boxplot_f0_rime50(YolTone.all0, sylltype = "monosyllabic words")
-boxplot_f0_rime50(YolTone.all1, sylltype = "1st syllable of disyllabic words")
-boxplot_f0_rime50(YolTone.all2, sylltype = "2nd syllable of disyllabic words")
+plot_boxplot_f0_rime50(YolTone.all0, toneanalysis = "Tone4", sylltype = "monosyllabic words (all frames)")
+plot_boxplot_f0_rime50(YolTone.all1, toneanalysis = "Tone4", sylltype = "1st syllable of disyllabic words (all frames)")
+plot_boxplot_f0_rime50(YolTone.all2,  toneanalysis = "Tone4", sylltype = "2nd syllable of disyllabic words (all frames)")
 
 #Save as plots as PNG files
-save_boxplot_f0_rime50_png(YolTone.all0, sylltype = "monosyllabic words", filename = "YolTone_4tone_all_f0_rime50_mono")
-save_boxplot_f0_rime50_png(YolTone.all1, sylltype = "1st syllable of disyllabic words", filename = "YolTone_4tone_all_f0_rime50_di_1st")
-save_boxplot_f0_rime50_png(YolTone.all2, sylltype = "2nd syllable of disyllabic words", filename = "YolTone_4tone_all_f0_rime50_di_2nd")
+save_boxplot_f0_rime50_png(YolTone.all0, toneanalysis = "Tone4", sylltype = "monosyllabic words (all frames)", filename = "YolTone_4tone_all_f0_rime50_mono")
+save_boxplot_f0_rime50_png(YolTone.all1, toneanalysis = "Tone4", sylltype = "1st syllable of disyllabic words (all frames)", filename = "YolTone_4tone_all_f0_rime50_di_1st")
+save_boxplot_f0_rime50_png(YolTone.all2, toneanalysis = "Tone4", sylltype = "2nd syllable of disyllabic words (all frames)", filename = "YolTone_4tone_all_f0_rime50_di_2nd")
 ```
 
-# 2.2 Linear regreesion models fo F0 at rime midpoint
+# 2.2 Linear regressions to model F0 at rime midpoint
 ```{r}
 YolTone.all0.lm <- lm(F0 ~ Tone4 + Gender, data = subset_f0_rime50(YolTone.all0))
 summary(YolTone.all0.lm)
@@ -54,14 +54,13 @@ summary(YolTone.all2.lm)
 
 ## 2.3 Plot F0 across vowel by tone category (normalized duration)
 ```{r}
-YolTone.f0.summ <- summarySE(YolTone.all0, "F0", groupvars=c("Tone4", "Gender", "Time"), na.rm=TRUE, conf.interval=0.95, .drop=TRUE)
-#YolTone.f0.summ$Time <- YolTone.f0.summ$Time/100
-YolTone.f0.summ$Time <- as.integer(YolTone.f0.summ$Time)  # Make sure time is an integer, not a factor
-YolTone.f0.summ$Factor <- paste(YolTone.f0.summ$Gender, YolTone.f0.summ$Tone4)  #Create "Factor" column for interaction between Gender and Tone Category
+# Create summaries of mean F0 for each tone category * gender combination at 1% time intervals
+head(summarize_f0_across_time(YolTone.all0, toneanalysis = "Tone4"), 10)
+head(summarize_f0_across_time(YolTone.all1, toneanalysis = "Tone4"), 10)
+head(summarize_f0_across_time(YolTone.all2, toneanalysis = "Tone4"), 10)
 
-View(YolTone.f0.summ)
 
-# Plot f0 over =no by each preceding tone condition across (normalized) time
+# Plot F0 across rime for each tone category
 pd <- position_dodge(5)
 YolTone.f0.traj1 <- ggplot(YolTone.f0.summ, aes(x = Time, y = F0, colour = Factor, group = Factor)) + #Use x=Time for equal time
   geom_line(aes(linetype = Factor), size=1.25, position=pd) + #Line type depends on Tone.
