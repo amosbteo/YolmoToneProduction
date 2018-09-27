@@ -18,6 +18,7 @@ summarize_f0_50 <- function(df, toneanalysis = "Tone2") {
 }
 
 # Plot differences in F0 across tone categories conditions
+<<<<<<< HEAD
 plot_boxplot_f0_rime50 <- function(df, toneanalysis = "Tone2", syllposition = "") {
   df.50 <- subset_f0_rime50(df)
   syllposition <- paste(syllposition)
