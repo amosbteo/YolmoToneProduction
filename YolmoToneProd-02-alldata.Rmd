@@ -5,7 +5,7 @@ output: html_document
 
 ## 1. Load Data
 ```{r}
-rm(list=ls())
+#rm(list=ls())
 library(dplyr)
 library(Rmisc)
 library(ggplot2)
