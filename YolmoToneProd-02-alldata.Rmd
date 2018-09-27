@@ -20,7 +20,7 @@ load("output/YolmoTone-allspeakers.RData")
 ```{r}
 YolTone.all0 <- subset(YolTone.df, Position == 0)  # Only select monosyllabic words
 YolTone.all1 <- subset(YolTone.df, Position == 1)  # Only select 1st syllables of disyllabic words
-YolTone.all2 <- subset(YolTone.df, Position == 2)  # Only select 2nd syllables disyllabic wordss
+YolTone.all2 <- subset(YolTone.df, Position == 2)  # Only select 2nd syllables disyllabic words
 ```
 
 # 2.1 Plot effects of tone category on F0 at rime midpoint
@@ -52,7 +52,7 @@ summary(YolTone.all2.lm)
 ```
 
 
-## 2.3 Plot F0 across rime by tone category (normalized duration)
+## 3.1 Plot F0 across rime by tone category (normalized duration)
 ```{r}
 # Create summaries of mean F0 for each tone category * gender combination at 1% time intervals
 head(summarize_f0_across_time_norm(YolTone.all0, toneanalysis = "Tone4"), 10)
