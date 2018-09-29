@@ -129,22 +129,60 @@ YolTone.df$Gloss <- gsub("^truth$", "correct", YolTone.df$Gloss)  # Merge "truth
 YolTone.df$Gloss <- as.factor(YolTone.df$Gloss)
 
 
-# 12. Create a Rime time column
+# 12. Create a Rime time column (based on time proportion of vowel to sonorant-coda)
 YolTone.df$RimeTime <- YolTone.df$Time
 YolTone.df$RimeTime <- as.numeric(YolTone.df$RimeTime)
+vowel <- c("a", "e", "i", "o", "u")
+sonorant <- c("m", "n", "ng", "r")
 
-# For nasal and sonorant-final syllables, divide the Rime time by 2
-sonsyll <- c("N","R")
-YolTone.df$RimeTime[YolTone.df$SyllType %in% sonsyll] <- YolTone.df$RimeTime[YolTone.df$SyllType %in% sonsyll]/2
+# Nasal-final syllables
+# Get mean duration of vowels and codas
+N_vowlength_mean <- mean(YolTone.df$Duration[YolTone.df$Time %in% 1 & YolTone.df$SyllType %in% "N" & YolTone.df$Segment %in% vowel])
+N_sonlength_mean <- mean(YolTone.df$Duration[YolTone.df$Time %in% 1 & YolTone.df$SyllType %in% "N" & YolTone.df$Segment %in% sonorant])
 
-# For nasal and sonorant-portions of syllables, add 50 to the Rime time
-sonseg <- c("m","n","ng","r")
-YolTone.df$RimeTime[YolTone.df$Segment %in% sonseg] <- YolTone.df$RimeTime[YolTone.df$Segment %in% sonseg]+50
+# Get proportion of mean lengths of vowel and sonorant to whole rime
+N_vowlength_prop <- N_vowlength_mean/(N_vowlength_mean+N_sonlength_mean)
+N_sonlength_prop <- N_sonlength_mean/(N_vowlength_mean+N_sonlength_mean)
 
-# Delete all non-integer values
-YolTone.df$RimeTime <- as.character(YolTone.df$RimeTime)
-YolTone.df$RimeTime <- gsub("^.+\\.5$", "", YolTone.df$RimeTime)  # Remove all numbers that end with .5
-YolTone.df$RimeTime <- as.integer(YolTone.df$RimeTime)
+# For nasal-final syllables, multiply the Rime time of vowels by the proportion of mean vowel length to whole rime duration
+YolTone.df$RimeTime[YolTone.df$SyllType %in% "N" & YolTone.df$Segment %in% vowel] <- YolTone.df$RimeTime[YolTone.df$SyllType %in% "N" & YolTone.df$Segment %in% vowel] * N_vowlength_prop
+
+# Multiple the rime time of sonorants by the proportion of mean sonorant length to whole rime duration. Add the last value of the end of the vowel
+YolTone.df$RimeTime[YolTone.df$SyllType %in% "N" & YolTone.df$Segment %in% sonorant] <- YolTone.df$RimeTime[YolTone.df$SyllType %in% "N" & YolTone.df$Segment %in% sonorant] * N_sonlength_prop + YolTone.df$RimeTime[YolTone.df$SyllType %in% "N" & YolTone.df$Segment %in% vowel & YolTone.df$Time %in% 100]
+
+# Rhotic-final syllables
+# Get mean duration of vowels and codas
+R_vowlength_mean <- mean(YolTone.df$Duration[YolTone.df$Time %in% 1 & YolTone.df$SyllType %in% "R" & YolTone.df$Segment %in% vowel])
+R_sonlength_mean <- mean(YolTone.df$Duration[YolTone.df$Time %in% 1 & YolTone.df$SyllType %in% "R" & YolTone.df$Segment %in% sonorant])
+
+# Get proportion of mean lengths of vowel and sonorant to the whole rime
+R_vowlength_prop <- R_vowlength_mean/(R_vowlength_mean+R_sonlength_mean)
+R_sonlength_prop <- R_sonlength_mean/(R_vowlength_mean+R_sonlength_mean)
+
+# For rhotic-final syllables, multiply the Rime time of vowels by the proportion of mean vowel length to whole rime duration
+YolTone.df$RimeTime[YolTone.df$SyllType %in% "R" & YolTone.df$Segment %in% vowel] <- YolTone.df$RimeTime[YolTone.df$SyllType %in% "R" & YolTone.df$Segment %in% vowel] * R_vowlength_prop
+
+# Multiple the rime time of sonorants by the proportion of mean sonorant length to whole rime duration. Add the last value of the end of the vowel
+YolTone.df$RimeTime[YolTone.df$SyllType %in% "R" & YolTone.df$Segment %in% sonorant] <- YolTone.df$RimeTime[YolTone.df$SyllType %in% "R" & YolTone.df$Segment %in% sonorant] * R_sonlength_prop + YolTone.df$RimeTime[YolTone.df$SyllType %in% "R" & YolTone.df$Segment %in% vowel & YolTone.df$Time %in% 100]
+
+
+# Round RimeTime values to nearest integer
+YolTone.df$RimeTime <- round(YolTone.df$RimeTime, digits = 0)
+
+# Delete all duplicated RimeTime values (for each File * Label combination)
+# Copy dataframe and delete Time and F0 columns to get index of true duplicated rows
+df <- YolTone.df
+df$Time <- NULL
+df$F0 <- NULL
+duplicate_rownumbers <- duplicated(df) %in% TRUE
+df <- NULL
+
+# Use duplicate row number index to delete duplicate values in main data frame
+YolTone.df$RimeTime[duplicate_rownumbers] <- NA
+
+# Check rime time values are correct
+#View(YolTone.df[YolTone.df$SyllType %in% "N",])
+
 
 # Select and re-order columns
 YolTone.df <- YolTone.df[c("File", "Label", "Speaker", "Gender", "Word", "Gloss", "Frame", "Rep", "Position", "SyllType", "Segment", "Vowel", "Tone", "Tone4", "Tone2", "Duration", "Time", "RimeTime", "F0")]
@@ -155,7 +193,7 @@ str(YolTone.df)
 # Convert from long to wide format
 library(tidyr)
 YolTone.df.wide <- YolTone.df 
-YolTone.df.wide$RimeTime <- NULL
+YolTone.df.wide$RimeTime1 <- NULL
 YolTone.df.wide <- spread(YolTone.df.wide, Time, F0)
 
 # Look for mislabels
