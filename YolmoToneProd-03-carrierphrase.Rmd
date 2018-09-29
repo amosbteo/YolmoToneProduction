@@ -57,136 +57,27 @@ save_plot_f0_across_time_norm_png(YolTone.cp2, toneanalysis = "Tone4", syllposit
 ```
 
 
-## 4.2 Plot gender-normalized F0 (z-score) (normalized duration)
+## 4.1 Plot gender-normalized F0 (z-score) (normalized duration)
 ```{r}
-# Get z-scores using scale() and with Gender as factor
-YolTone.cp0.z <- by(data = YolTone.cp0$F0, YolTone.cp0$Gender, scale)
-YolTone.cp0$z <- do.call(rbind, YolTone.cp0.z)
+# Normalize F0 by gender, add z-score column to data frame
+YolTone.cp0 <- normalize_gender_f0(YolTone.cp0)
+YolTone.cp1 <- normalize_gender_f0(YolTone.cp1)
+YolTone.cp2 <- normalize_gender_f0(YolTone.cp2)
 
-# Get summary of z-scores across 1st syll in a carrier phrase
-YolTone.cp0.z.summ <- summarySE(YolTone.cp0, "z", groupvars=c("Tone4", "Time"), na.rm=TRUE, conf.interval=0.95, .drop=TRUE)
-#YolTone.f0.summ$Time <- YolTone.f0.summ$Time/100
-YolTone.cp0.z.summ$Time <- as.integer(YolTone.cp0.z.summ$Time)  # Make sure time is an integer, not a factor
+# Get summary of z-scores across rime in a carrier phrase
+head(summarize_z_across_time_norm(YolTone.cp0, toneanalysis = "Tone4"), 10)
+head(summarize_z_across_time_norm(YolTone.cp1, toneanalysis = "Tone4"), 10)
+head(summarize_z_across_time_norm(YolTone.cp2, toneanalysis = "Tone4"), 10)
 
-View(YolTone.cp0.z.summ)
+# Plot z-scores across rime in a carrier phrase
+plot_z_across_time_norm(YolTone.cp0, toneanalysis = "Tone4", syllposition = "monosyllabic words (carrier phrase)")
+plot_z_across_time_norm(YolTone.cp1, toneanalysis = "Tone4", syllposition = "1st syllable of disyllabic words (carrier phrase)")
+plot_z_across_time_norm(YolTone.cp2, toneanalysis = "Tone4", syllposition = "2nd syllable of disyllabic words (carrier phrase)")
 
-# Plot z-scores by tone across (normalized) time
-pd <- position_dodge(5)
-YolTone.cp0.z.traj <- ggplot(YolTone.cp0.z.summ, aes(x = Time, y = z, colour = Tone4, group = Tone4)) + #Use x=Time for equal time
-  geom_line(aes(linetype = Tone4), size=1.25, position=pd) + #Line type depends on Tone.
-  geom_point(data=subset(YolTone.cp0.z.summ, (Time==1|Time==20|Time==40|Time==60|Time==80|Time==100)), aes(shape = Tone4), size = 5, position = pd) + #Only show the points for a subset of the data
-  geom_errorbar(data = subset(YolTone.cp0.z.summ, (Time==1|Time==20|Time==40|Time==60|Time==80|Time==100)), aes(ymin = z-sd/2, ymax = z+sd/2), width = 1.0, position = pd) + #Only show half the NS for a subset of the data
-  scale_x_continuous(limits = c(-1,105),
-                     breaks = c(0,20,40,60,80,100)) + # Set x range + ticks
-  #scale_y_continuous(limits = c(-1.0, 1.0), 
-  #                  breaks = c(-1.0,-0.5,0.0,0.5,0.5,1)) + #Set y range + ticks
-  labs(x = "Time (%)", y = "z-score", title = "Gender-normalized F0 across time-normalized vowel\n(monosyllable, carrier phrase)") +
-  theme_bw() +
-  theme(axis.title = element_text(size = 16),
-        axis.text = element_text(size = 15)) + #Adjust font size of axes
-  theme(legend.title = element_text(size = 12),
-        legend.text = element_text(size = 11)) + #Adjust size of legend
-  theme(plot.title = element_text(size = 16)) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  scale_colour_discrete(name = "Tone\nCategory", l=50) + # Use darker colors, lightness=50 
-  scale_linetype_discrete(name = "Tone\nCategory") +
-  scale_shape_discrete(name = "Tone\nCategory")
-
-YolTone.cp0.z.traj # Preview plot
-
-#Save as PNG file
-#dev.copy(png, "figures/YolTone_4tone_f0traj.png")
-png(file = "figures/YolTone_4tone_cp_monosyll_zscore.png", width = 600, height = 450, res = 72)
-YolTone.cp0.z.traj
-dev.off()
-```
-
-## 4.2 Plot gender-normalized F0 (z-score) across 1st syllable 
-```{r}
-# Get z-scores using scale() and with Gender as factor
-YolTone.cp1.z <- by(data = YolTone.cp1$F0, YolTone.cp1$Gender, scale)
-YolTone.cp1$z <- do.call(rbind, YolTone.cp1.z)
-
-# Get summary of z-scores across 1st syll in a carrier phrase
-YolTone.cp1.z.summ <- summarySE(YolTone.cp1, "z", groupvars=c("Tone4", "Time"), na.rm=TRUE, conf.interval=0.95, .drop=TRUE)
-#YolTone.f0.summ$Time <- YolTone.f0.summ$Time/100
-YolTone.cp1.z.summ$Time <- as.integer(YolTone.cp1.z.summ$Time)  # Make sure time is an integer, not a factor
-
-#View(YolTone.cp1.z.summ)
-
-# Plot z-scores by tone across (normalized) time
-pd <- position_dodge(5)
-YolTone.cp1.z.traj <- ggplot(YolTone.cp1.z.summ, aes(x = Time, y = z, colour = Tone4, group = Tone4)) + #Use x=Time for equal time
-  geom_line(aes(linetype = Tone4), size=1.25, position=pd) + #Line type depends on Tone.
-  geom_point(data=subset(YolTone.cp1.z.summ, (Time==1|Time==20|Time==40|Time==60|Time==80|Time==100)), aes(shape = Tone4), size = 5, position = pd) + #Only show the points for a subset of the data
-  geom_errorbar(data = subset(YolTone.cp1.z.summ, (Time==1|Time==20|Time==40|Time==60|Time==80|Time==100)), aes(ymin = z-sd/2, ymax = z+sd/2), width = 1.0, position = pd) + #Only show half the NS for a subset of the data
-  scale_x_continuous(limits = c(-1,105),
-                     breaks = c(0,20,40,60,80,100)) + # Set x range + ticks
-  #scale_y_continuous(limits = c(-1.0, 1.0), 
-  #                  breaks = c(-1.0,-0.5,0.0,0.5,0.5,1)) + #Set y range + ticks
-  labs(x = "Time (%)", y = "z-score", title = "Gender-normalized F0 across time-normalized vowel\n(1st syllable, carrier phrase)") +
-  theme_bw() +
-  theme(axis.title = element_text(size = 16),
-        axis.text = element_text(size = 15)) + #Adjust font size of axes
-  theme(legend.title = element_text(size = 12),
-        legend.text = element_text(size = 11)) + #Adjust size of legend
-  theme(plot.title = element_text(size = 16)) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  scale_colour_discrete(name = "Tone\nCategory", l=50) + # Use darker colors, lightness=50 
-  scale_linetype_discrete(name = "Tone\nCategory") +
-  scale_shape_discrete(name = "Tone\nCategory")
-
-YolTone.cp1.z.traj # Preview plot
-
-#Save as PNG file
-#dev.copy(png, "figures/YolTone_4tone_f0traj.png")
-png(file = "figures/YolTone_4tone_cp_1syll_zscore.png", width = 600, height = 450, res = 72)
-YolTone.cp1.z.traj
-dev.off()
-```
-
-## 4.3 Plot gender-normalized F0 (z-score) across 2nd syllable 
-```{r}
-# Get z-scores using scale() and with Gender as factor
-YolTone.cp2.z <- by(data = YolTone.cp2$F0, YolTone.cp2$Gender, scale)
-YolTone.cp2$z <- do.call(rbind, YolTone.cp2.z)
-
-# Get summary of z-scores across 1st syll in a carrier phrase
-YolTone.cp2.z.summ <- summarySE(YolTone.cp2, "z", groupvars=c("Tone4", "Time"), na.rm=TRUE, conf.interval=0.95, .drop=TRUE)
-#YolTone.f0.summ$Time <- YolTone.f0.summ$Time/100
-YolTone.cp2.z.summ$Time <- as.integer(YolTone.cp2.z.summ$Time)  # Make sure time is an integer, not a factor
-
-#View(YolTone.cp2.z.summ)
-
-# Plot z-scores by tone across (normalized) time
-pd <- position_dodge(5)
-YolTone.cp2.z.traj <- ggplot(YolTone.cp2.z.summ, aes(x = Time, y = z, colour = Tone4, group = Tone4)) + #Use x=Time for equal time
-  geom_line(aes(linetype = Tone4), size=1.25, position=pd) + #Line type depends on Tone.
-  geom_point(data=subset(YolTone.cp2.z.summ, (Time==1|Time==20|Time==40|Time==60|Time==80|Time==100)), aes(shape = Tone4), size = 5, position = pd) + #Only show the points for a subset of the data
-  geom_errorbar(data = subset(YolTone.cp2.z.summ, (Time==1|Time==20|Time==40|Time==60|Time==80|Time==100)), aes(ymin = z-sd/2, ymax = z+sd/2), width = 1.0, position = pd) + #Only show half the NS for a subset of the data
-  scale_x_continuous(limits = c(-1,105),
-                     breaks = c(0,20,40,60,80,100)) + # Set x range + ticks
-  #scale_y_continuous(limits = c(-1.0, 1.0), 
-  #                  breaks = c(-1.0,-0.5,0.0,0.5,0.5,1)) + #Set y range + ticks
-  labs(x = "Time (%)", y = "z-score", title = "Speaker-normalized F0 across time-normalized vowel\n(2nd syllable, carrier phrase)") +
-  theme_bw() +
-  theme(axis.title = element_text(size = 16),
-        axis.text = element_text(size = 15)) + #Adjust font size of axes
-  theme(legend.title = element_text(size = 12),
-        legend.text = element_text(size = 11)) + #Adjust size of legend
-  theme(plot.title = element_text(size = 16)) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  scale_colour_discrete(name = "Tone\nCategory", l=50) + # Use darker colors, lightness=50 
-  scale_linetype_discrete(name = "Tone\nCategory") +
-  scale_shape_discrete(name = "Tone\nCategory")
-
-YolTone.cp2.z.traj # Preview plot
-
-#Save as PNG file
-#dev.copy(png, "figures/YolTone_4tone_f0traj.png")
-png(file = "figures/YolTone_4tone_cp_2syll_zscore.png", width = 600, height = 450, res = 72)
-YolTone.cp2.z.traj
-dev.off()
+#Save as PNG files
+save_plot_z_across_time_norm_png(YolTone.cp0, toneanalysis = "Tone4", syllposition = "monosyllabic words (carrier phrase)", filename = "YolTone_4tone_cp_z_across_time_norm_mono")
+save_plot_z_across_time_norm_png(YolTone.cp1, toneanalysis = "Tone4", syllposition = "1st syllable of disyllabic words (carrier phrase)", filename = "YolTone_4tone_cp_z_across_time_norm_di1st")
+save_plot_z_across_time_norm_png(YolTone.cp2, toneanalysis = "Tone4", syllposition = "2nd syllable of disyllabic words (carrier phrase)", filename = "YolTone_4tone_cp_z_across_time_norm_di2nd")
 ```
 
 ## Save RData
