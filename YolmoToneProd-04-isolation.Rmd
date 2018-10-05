@@ -1,0 +1,86 @@
+## 1. Load Data
+```{r}
+#rm(list=ls())
+library(dplyr)
+library(Rmisc)
+library(ggplot2)
+
+# Load functions
+source("functions/YolmoToneProd_Functions.R")
+
+load("output/YolmoTone-allspeakers.RData")
+```
+
+## 2. Subset isolation frame data by position in word
+```{r}
+YolTone.isol <- subset(YolTone.df, Frame == "Isolation")  # Only select initial syllables
+YolTone.isol0<- subset(YolTone.isol, Position == 0)
+YolTone.isol1<- subset(YolTone.isol, Position == 1)
+YolTone.isol2<- subset(YolTone.isol, Position == 2)
+```
+
+
+# 2.1 Plot effect of tone category on F0 at rime midpoint
+```{r}
+# Create summaries of mean F0 for each tone category * gender combination at rime midpoint
+summarize_f0_50(YolTone.isol0, toneanalysis = "Tone4")
+summarize_f0_50(YolTone.isol1, toneanalysis = "Tone4")
+summarize_f0_50(YolTone.isol2, toneanalysis = "Tone4")
+
+# Plot differences in F0 across tone categories conditions
+plot_boxplot_f0_rime50(YolTone.isol0, toneanalysis = "Tone4", syllposition = "monosyllabic words (isolation frame)")
+plot_boxplot_f0_rime50(YolTone.isol1, toneanalysis = "Tone4", syllposition = "1st syllable of disyllabic words (isolation frame)")
+plot_boxplot_f0_rime50(YolTone.isol2,  toneanalysis = "Tone4", syllposition = "2nd syllable of disyllabic words (isolation frame)")
+
+#Save as plots as PNG files
+save_boxplot_f0_rime50_png(YolTone.isol0, toneanalysis = "Tone4", syllposition = "monosyllabic words (isolation frame)", filename = "YolTone_4tone_isol_f0_rime50_mono")
+save_boxplot_f0_rime50_png(YolTone.isol1, toneanalysis = "Tone4", syllposition = "1st syllable of disyllabic words (isolation frame)", filename = "YolTone_4tone_isol_f0_rime50_di1st")
+save_boxplot_f0_rime50_png(YolTone.isol2, toneanalysis = "Tone4", syllposition = "2nd syllable of disyllabic words (isolation frame)", filename = "YolTone_4tone_isol_f0_rime50_di2nd")
+```
+
+## 3.1 Plot F0 across rime (normalized duration)
+```{r}
+# Create summaries of mean F0 for each tone category * gender combination at 1% time intervals
+head(summarize_f0_across_time_norm(YolTone.isol0, toneanalysis = "Tone4"), 10)
+head(summarize_f0_across_time_norm(YolTone.isol1, toneanalysis = "Tone4"), 10)
+head(summarize_f0_across_time_norm(YolTone.isol2, toneanalysis = "Tone4"), 10)
+
+# Plot F0 across rime for each tone category
+plot_f0_across_time_norm(YolTone.isol0, toneanalysis = "Tone4", syllposition = "monosyllabic words\n(isolation frame)")
+plot_f0_across_time_norm(YolTone.isol1, toneanalysis = "Tone4", syllposition = "1st syllable of disyllabic words\n(isolation frame)")
+plot_f0_across_time_norm(YolTone.isol2, toneanalysis = "Tone4", syllposition = "2nd syllable of disyllabic words\n(isolation frame)")
+
+#Save as PNG files
+save_plot_f0_across_time_norm_png(YolTone.isol0, toneanalysis = "Tone4", syllposition = "monosyllabic words (isolation frame)", filename = "YolTone_4tone_isol_f0_across_time_norm_mono")
+save_plot_f0_across_time_norm_png(YolTone.isol1, toneanalysis = "Tone4", syllposition = "1st syllable of disyllabic words (isolation frame)", filename = "YolTone_4tone_isol_f0_across_time_norm_di1st")
+save_plot_f0_across_time_norm_png(YolTone.isol2, toneanalysis = "Tone4", syllposition = "2nd syllable of disyllabic words (isolation frame)", filename = "YolTone_4tone_isol_f0_across_time_norm_di2nd")
+```
+
+
+## 4.1 Plot speaker-normalized F0 (z-score) (normalized duration)
+```{r}
+# Normalize F0 by speaker or gender, add z-score column to data frame
+YolTone.isol0 <- normalize_byfactor_f0(YolTone.isol0, factor = "Speaker")
+YolTone.isol1 <- normalize_byfactor_f0(YolTone.isol1, factor = "Speaker")
+YolTone.isol2 <- normalize_byfactor_f0(YolTone.isol2, factor = "Speaker")
+
+# Get summary of z-scores across rime in an isolation frame
+head(summarize_z_across_time_norm(YolTone.isol0, toneanalysis = "Tone4"), 10)
+head(summarize_z_across_time_norm(YolTone.isol1, toneanalysis = "Tone4"), 10)
+head(summarize_z_across_time_norm(YolTone.isol2, toneanalysis = "Tone4"), 10)
+
+# Plot z-scores across rime in an isolation frame
+plot_z_across_time_norm(YolTone.isol0, toneanalysis = "Tone4", syllposition = "\nmonosyllabic words (isolation frame)")
+plot_z_across_time_norm(YolTone.isol1, toneanalysis = "Tone4", syllposition = "\n1st syllable of disyllabic words (isolation frame)")
+plot_z_across_time_norm(YolTone.isol2, toneanalysis = "Tone4", syllposition = "\n2nd syllable of disyllabic words (isolation frame)")
+
+#Save as PNG files
+save_plot_z_across_time_norm_png(YolTone.isol0, toneanalysis = "Tone4", syllposition = "\nmonosyllabic words (isolation frame)", filename = "YolTone_4tone_isol_z_across_time_norm_mono")
+save_plot_z_across_time_norm_png(YolTone.isol1, toneanalysis = "Tone4", syllposition = "\n1st syllable of disyllabic words (isolation frame)", filename = "YolTone_4tone_isol_z_across_time_norm_di1st")
+save_plot_z_across_time_norm_png(YolTone.isol2, toneanalysis = "Tone4", syllposition = "\n2nd syllable of disyllabic words (isolation frame)", filename = "YolTone_4tone_isol_z_across_time_norm_di2nd")
+```
+
+## Save RData
+```{r}
+save.image(file="output/YolmoTone-allspeakers-isol-plots.RData")
+```
