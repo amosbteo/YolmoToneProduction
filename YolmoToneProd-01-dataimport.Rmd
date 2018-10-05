@@ -6,6 +6,7 @@ output: html_document
 ## 1. Load Data
 ```{r}
 rm(list=ls())
+library(tidyr)
 #setwd("")
 # Get files in "data/" sub-directory
 filenames <- list.files(path = "data/", pattern = "*.txt")
@@ -16,7 +17,7 @@ filenames <- as.list(filenames)
 YolTone.list <- lapply(filenames, read.table, header = TRUE)
 #filenames <- lapply(1:4, function(i){paste0("data/Syuba-female01-T", i, ".txt")})
 
-# Create column for "File"" name in data frames (needed for Speaker info)
+# Create column for "File"" name in data frames (needed to get Speaker info)
 names(YolTone.list) <- filenames  # Name each dataframe according to filename list
 for(i in filenames){
   YolTone.list[[i]]$File = i
@@ -183,7 +184,6 @@ YolTone.df$RimeTime[duplicate_rownumbers] <- NA
 # Check rime time values are correct
 #View(YolTone.df[YolTone.df$SyllType %in% "N",])
 
-
 # Select and re-order columns
 YolTone.df <- YolTone.df[c("File", "Label", "Speaker", "Gender", "Word", "Gloss", "Frame", "Rep", "Position", "SyllType", "Segment", "Vowel", "Tone", "Tone4", "Tone2", "Duration", "Time", "RimeTime", "F0")]
 
@@ -191,16 +191,21 @@ View(YolTone.df)
 str(YolTone.df)
 
 # Convert from long to wide format
-library(tidyr)
 YolTone.df.wide <- YolTone.df 
-YolTone.df.wide$RimeTime1 <- NULL
+YolTone.df.wide$RimeTime <- NULL
 YolTone.df.wide <- spread(YolTone.df.wide, Time, F0)
+
+# Get number of tokens of each syllable type
+YolTone.df.wide %>% count("SyllType")
 
 # Look for mislabels
 #View(YolTone.df.wide)
-
-#levels(YolTone.df$Word)
-#unique(YolTone.df$File[grep("tongbo", YolTone.df$Word)])
+#df <- subset(YolTone.df, Frame == "Carrier" & RimeTime == 30) #& Tone4 %in% c("T1","T2")) # & Gender == 'female')
+#df$F0 <- as.numeric(df$F0)
+#df.summ <- summarySE(df, "F0", groupvars=c("Word", "Tone4", "Gender", "Speaker"), na.rm = TRUE)
+#df.summ[df.summ$Word == "thong",]
+#df.summ[(grep("^lung", df.summ$Word)),]
+#write.csv(df.summ, file = "output/check_tone_by_word.csv", row.names = FALSE, na = "") 
 ```
 
 

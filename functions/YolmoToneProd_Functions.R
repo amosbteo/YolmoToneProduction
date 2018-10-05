@@ -105,11 +105,12 @@ save_plot_f0_across_time_norm_png <- function(df, toneanalysis = "Tone2", syllpo
 
 
 # Plot gender-normalized F0 (z-score) (normalized duration)
-normalize_gender_f0 <- function(df) {
-  df.z <- by(data = df$F0, df$Gender, scale)
+normalize_byfactor_f0 <- function(df, factor = "Gender") {
+  df.z <- by(data = df$F0, df[,factor], scale)
   df$z <- do.call(rbind, df.z)
   df
   } 
+
 
 # Get summary of z-scores across rime in a carrier phrase
 summarize_z_across_time_norm <- function(df, toneanalysis = "Tone2"){

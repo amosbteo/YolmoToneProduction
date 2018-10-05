@@ -57,12 +57,12 @@ save_plot_f0_across_time_norm_png(YolTone.cp2, toneanalysis = "Tone4", syllposit
 ```
 
 
-## 4.1 Plot gender-normalized F0 (z-score) (normalized duration)
+## 4.1 Plot speaker-normalized F0 (z-score) (normalized duration)
 ```{r}
-# Normalize F0 by gender, add z-score column to data frame
-YolTone.cp0 <- normalize_gender_f0(YolTone.cp0)
-YolTone.cp1 <- normalize_gender_f0(YolTone.cp1)
-YolTone.cp2 <- normalize_gender_f0(YolTone.cp2)
+# Normalize F0 by speaker or gender, add z-score column to data frame
+YolTone.cp0 <- normalize_byfactor_f0(YolTone.cp0, factor = "Speaker")
+YolTone.cp1 <- normalize_byfactor_f0(YolTone.cp1, factor = "Speaker")
+YolTone.cp2 <- normalize_byfactor_f0(YolTone.cp2, factor = "Speaker")
 
 # Get summary of z-scores across rime in a carrier phrase
 head(summarize_z_across_time_norm(YolTone.cp0, toneanalysis = "Tone4"), 10)
