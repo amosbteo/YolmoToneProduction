@@ -51,9 +51,9 @@ plot_f0_across_time_norm(YolTone.isol1, toneanalysis = "Tone4", syllposition = "
 plot_f0_across_time_norm(YolTone.isol2, toneanalysis = "Tone4", syllposition = "2nd syllable of disyllabic words\n(isolation frame)")
 
 #Save as PNG files
-save_plot_f0_across_time_norm_png(YolTone.isol0, toneanalysis = "Tone4", syllposition = "monosyllabic words (isolation frame)", filename = "YolTone_4tone_isol_f0_across_time_norm_mono")
-save_plot_f0_across_time_norm_png(YolTone.isol1, toneanalysis = "Tone4", syllposition = "1st syllable of disyllabic words (isolation frame)", filename = "YolTone_4tone_isol_f0_across_time_norm_di1st")
-save_plot_f0_across_time_norm_png(YolTone.isol2, toneanalysis = "Tone4", syllposition = "2nd syllable of disyllabic words (isolation frame)", filename = "YolTone_4tone_isol_f0_across_time_norm_di2nd")
+save_plot_f0_across_time_norm_png(YolTone.isol0, toneanalysis = "Tone4", syllposition = "monosyllabic words\n(isolation frame)", filename = "YolTone_4tone_isol_f0_across_time_norm_mono")
+save_plot_f0_across_time_norm_png(YolTone.isol1, toneanalysis = "Tone4", syllposition = "1st syllable of disyllabic words\n(isolation frame)", filename = "YolTone_4tone_isol_f0_across_time_norm_di1st")
+save_plot_f0_across_time_norm_png(YolTone.isol2, toneanalysis = "Tone4", syllposition = "2nd syllable of disyllabic words\n(isolation frame)", filename = "YolTone_4tone_isol_f0_across_time_norm_di2nd")
 ```
 
 

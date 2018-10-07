@@ -76,8 +76,8 @@ plot_f0_across_time_norm <- function(df, toneanalysis = "Tone2",  syllposition =
     geom_errorbar(data = subset(df.summ, (RimeTime==1|RimeTime==20|RimeTime==40|RimeTime==60|RimeTime==80|RimeTime==100)), aes(ymin = F0-sd/2, ymax = F0+sd/2), width = 1.0, position = pd) + #Only show half the NS for a subset of the data
     scale_x_continuous(limits = c(-1,105),
                      breaks = c(0,20,40,60,80,100)) + # Set x range + ticks
-    scale_y_continuous(limits = c(100, 250), 
-                     breaks = c(100,125,150,175,200,225,250)) + #Set y range + ticks
+    scale_y_continuous(limits = c(100, 280), 
+                     breaks = c(100,125,150,175,200,225,250,275)) + #Set y range + ticks
     labs(x = "Time (%)", y = "F0 (Hz)") +
     ggtitle(paste("F0 across time-normalized rime of", syllposition)) +
     theme_bw() +

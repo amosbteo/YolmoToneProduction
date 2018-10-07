@@ -60,14 +60,14 @@ head(summarize_f0_across_time_norm(YolTone.all1, toneanalysis = "Tone4"), 10)
 head(summarize_f0_across_time_norm(YolTone.all2, toneanalysis = "Tone4"), 10)
 
 # Plot F0 across rime for each tone category
-plot_f0_across_time_norm(YolTone.all0, toneanalysis = "Tone4", syllposition = "monosyllabic words (all frames)")
-plot_f0_across_time_norm(YolTone.all1, toneanalysis = "Tone4", syllposition = "1st syllable of disyllabic words (all frames)")
-plot_f0_across_time_norm(YolTone.all2, toneanalysis = "Tone4", syllposition = "2nd syllable of disyllabic words (all frames)")
+plot_f0_across_time_norm(YolTone.all0, toneanalysis = "Tone4", syllposition = "monosyllabic words\n(all frames)")
+plot_f0_across_time_norm(YolTone.all1, toneanalysis = "Tone4", syllposition = "1st syllable of disyllabic words\n(all frames)")
+plot_f0_across_time_norm(YolTone.all2, toneanalysis = "Tone4", syllposition = "2nd syllable of disyllabic words\n(all frames)")
 
 #Save as PNG files
-save_plot_f0_across_time_norm_png(YolTone.all0, toneanalysis = "Tone4", syllposition = "monosyllabic words (all frames)", filename = "YolTone_4tone_all_f0_across_time_norm_mono")
-save_plot_f0_across_time_norm_png(YolTone.all1, toneanalysis = "Tone4", syllposition = "1st syllable of disyllabic words (all frames)", filename = "YolTone_4tone_all_f0_across_time_norm_di1st")
-save_plot_f0_across_time_norm_png(YolTone.all2, toneanalysis = "Tone4", syllposition = "2nd syllable of disyllabic words (all frames)", filename = "YolTone_4tone_all_f0_across_time_norm_di2nd")
+save_plot_f0_across_time_norm_png(YolTone.all0, toneanalysis = "Tone4", syllposition = "monosyllabic words\n(all frames)", filename = "YolTone_4tone_all_f0_across_time_norm_mono")
+save_plot_f0_across_time_norm_png(YolTone.all1, toneanalysis = "Tone4", syllposition = "1st syllable of disyllabic words\n(all frames)", filename = "YolTone_4tone_all_f0_across_time_norm_di1st")
+save_plot_f0_across_time_norm_png(YolTone.all2, toneanalysis = "Tone4", syllposition = "2nd syllable of disyllabic words\n(all frames)", filename = "YolTone_4tone_all_f0_across_time_norm_di2nd")
 ```
 
 

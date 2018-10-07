@@ -46,14 +46,14 @@ head(summarize_f0_across_time_norm(YolTone.cp1, toneanalysis = "Tone4"), 10)
 head(summarize_f0_across_time_norm(YolTone.cp2, toneanalysis = "Tone4"), 10)
 
 # Plot F0 across rime for each tone category
-plot_f0_across_time_norm(YolTone.cp0, toneanalysis = "Tone4", syllposition = "monosyllabic words (carrier phrase)")
-plot_f0_across_time_norm(YolTone.cp1, toneanalysis = "Tone4", syllposition = "1st syllable of disyllabic words (carrier phrase)")
-plot_f0_across_time_norm(YolTone.cp2, toneanalysis = "Tone4", syllposition = "2nd syllable of disyllabic words (carrier phrase)")
+plot_f0_across_time_norm(YolTone.cp0, toneanalysis = "Tone4", syllposition = "monosyllabic words\n(carrier phrase)")
+plot_f0_across_time_norm(YolTone.cp1, toneanalysis = "Tone4", syllposition = "1st syllable of disyllabic words\n(carrier phrase)")
+plot_f0_across_time_norm(YolTone.cp2, toneanalysis = "Tone4", syllposition = "2nd syllable of disyllabic words\n(carrier phrase)")
 
 #Save as PNG files
-save_plot_f0_across_time_norm_png(YolTone.cp0, toneanalysis = "Tone4", syllposition = "monosyllabic words (carrier phrase)", filename = "YolTone_4tone_cp_f0_across_time_norm_mono")
-save_plot_f0_across_time_norm_png(YolTone.cp1, toneanalysis = "Tone4", syllposition = "1st syllable of disyllabic words (carrier phrase)", filename = "YolTone_4tone_cp_f0_across_time_norm_di1st")
-save_plot_f0_across_time_norm_png(YolTone.cp2, toneanalysis = "Tone4", syllposition = "2nd syllable of disyllabic words (carrier phrase)", filename = "YolTone_4tone_cp_f0_across_time_norm_di2nd")
+save_plot_f0_across_time_norm_png(YolTone.cp0, toneanalysis = "Tone4", syllposition = "monosyllabic words\n(carrier phrase)", filename = "YolTone_4tone_cp_f0_across_time_norm_mono")
+save_plot_f0_across_time_norm_png(YolTone.cp1, toneanalysis = "Tone4", syllposition = "1st syllable of disyllabic words\n(carrier phrase)", filename = "YolTone_4tone_cp_f0_across_time_norm_di1st")
+save_plot_f0_across_time_norm_png(YolTone.cp2, toneanalysis = "Tone4", syllposition = "2nd syllable of disyllabic words\n(carrier phrase)", filename = "YolTone_4tone_cp_f0_across_time_norm_di2nd")
 ```
 
 
